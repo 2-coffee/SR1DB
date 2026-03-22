@@ -1,25 +1,15 @@
 package main
 
 import (
+	"SR1DB/src"
 	"bufio"
 	"fmt"
 	"os"
 	"strings"
 )
 
-type StatementType int
-
-const (
-	StatementInsert StatementType = iota
-	StatementSelect
-	StatementDelete
-)
-
-type Statement struct {
-	Type StatementType
-}
-
 func main() {
+	table := &src.Table{}
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("SR1DB > ")
@@ -34,50 +24,30 @@ func main() {
 			continue
 		}
 
-		// Handle exit command
+		// Handle meta commands
 		if strings.HasPrefix(input, ".") {
-			if input == ".exit" {
-				fmt.Println("Exiting database.")
-				os.Exit(0)
-			} else {
-				fmt.Printf("Unrecognized command: '%s'\n", input)
-			}
+			handleMetaCommand(input)
 			continue
 		}
 
-		// Handle basic CRUD
-		var statement Statement
-		isPrepared := false
+		// Compile command
+		statement, err := src.PrepareStatement(input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 
-		lowerInput := strings.ToLower(input)
-		if strings.HasPrefix(lowerInput, "insert") {
-			statement.Type = StatementInsert
-			isPrepared = true
-		} else if strings.HasPrefix(lowerInput, "select") {
-			statement.Type = StatementSelect
-			isPrepared = true
-		} else if strings.HasPrefix(lowerInput, "delete") {
-			statement.Type = StatementDelete
-			isPrepared = true
-		} else {
-			fmt.Printf("Syntax error: Unrecognized keyword at the start of '%s'.\n", lowerInput)
-		}
-		if isPrepared {
-			executeStatement(statement)
-		}
+		// Send command to the backend for execution
+		src.ExecuteStatement(statement, table)
+
 	}
-	// Send it to execute in the backend
-
 }
 
-// Dummy backend function
-func executeStatement(statement Statement) {
-	switch statement.Type {
-	case StatementInsert:
-		fmt.Println("Executing an INSERT statement...")
-	case StatementSelect:
-		fmt.Println("Executing a SELECT statement...")
-	case StatementDelete:
-		fmt.Println("Executing a DELETE statement...")
+func handleMetaCommand(input string) {
+	if input == ".exit" {
+		fmt.Println("Exiting database.")
+		os.Exit(0)
+	} else {
+		fmt.Printf("Unrecognized command: '%s'\n", input)
 	}
 }
