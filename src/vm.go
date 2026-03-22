@@ -24,7 +24,7 @@ func executeSelect(table *Table) {
 	// TODO: filter
 	// Current selects all
 	for _, row := range table.Rows {
-		fmt.Printf("(%d, %s, %s)\n", row.ID, row.Username, row.Email)
+		fmt.Printf("(%d, %s, %s)\n", row.ID, row.Name, row.Email)
 	}
 }
 

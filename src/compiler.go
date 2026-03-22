@@ -44,7 +44,7 @@ func PrepareStatement(input string) (Statement, error) {
 		}
 		statement.RowToInsert.ID = uint32(id)
 		// Insert name
-		statement.RowToInsert.Username = tokens[2]
+		statement.RowToInsert.Name = tokens[2]
 		// Insert email
 		statement.RowToInsert.Email = tokens[3]
 
