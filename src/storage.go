@@ -19,7 +19,21 @@ type Row struct {
 }
 
 type Table struct {
-	Rows []Row
+	Pager *Pager
+}
+
+func DbOpen(filename string) (*Table, error) {
+	pager, err := PagerOpen(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &Table{
+		Pager: pager,
+	}, nil
+}
+
+func (t *Table) Close() {
+	t.Pager.file.Close()
 }
 
 func (r *Row) Serialize() []byte {

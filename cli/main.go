@@ -9,7 +9,12 @@ import (
 )
 
 func main() {
-	table := &src.Table{}
+	table, err := src.DbOpen("SR1DB.db")
+	if err != nil {
+		fmt.Printf("Failed to open database: %v\n", err)
+		os.Exit(1)
+	}
+	defer table.Close()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("SR1DB > ")

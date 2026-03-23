@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -47,5 +48,24 @@ func (p *Pager) GetPage(pageNumber uint32) ([]byte, error) {
 	}
 
 	// In RAM
+	if p.pages[pageNumber] != nil {
+		return p.pages[pageNumber], nil
+	}
 
+	// Cache miss; allocate 4KB and fetch from disk
+	page := make([]byte, PageSize)
+
+	if pageNumber < p.numPages {
+		// ReadAt func needs an offset in int64
+		offset := int64(pageNumber) * PageSize
+		_, err := p.file.ReadAt(page, offset)
+		if err != nil && err != io.EOF {
+			return nil, fmt.Errorf("error reading file at offset %d: %v", offset, err)
+		}
+	}
+	// Not sure if this pageNumber offset is correct due to 0-indexed
+	// Need to revisit this
+	p.pages[pageNumber] = page
+
+	return page, nil
 }
