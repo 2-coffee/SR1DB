@@ -3,6 +3,7 @@ package src
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 // Column size limits
@@ -33,7 +34,18 @@ func DbOpen(filename string) (*Table, error) {
 }
 
 func (t *Table) Close() {
-	t.Pager.file.Close()
+	for i := uint32(0); i < t.Pager.numPages; i++ {
+		if t.Pager.pages[i] != nil {
+			err := t.Pager.Flush(i)
+			if err != nil {
+				fmt.Printf("Error flushing page %d: %v\n", i, err)
+			}
+		}
+	}
+	err := t.Pager.file.Close()
+	if err != nil {
+		fmt.Printf("Error closing db file: %v\n", err)
+	}
 }
 
 func (r *Row) Serialize() []byte {

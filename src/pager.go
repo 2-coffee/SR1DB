@@ -18,6 +18,7 @@ type Pager struct {
 }
 
 // Initializes a connection to the db on disk
+// This function is used in storage.go by DbOpen
 func PagerOpen(filename string) (*Pager, error) {
 	// Open the file. If it doesn't exist, create it.
 	// 0600 means only the current user can read/write to the file
@@ -68,4 +69,15 @@ func (p *Pager) GetPage(pageNumber uint32) ([]byte, error) {
 	p.pages[pageNumber] = page
 
 	return page, nil
+}
+
+func (p *Pager) Flush(pageNumber uint32) error {
+	// Page not in RAM
+	if p.pages[pageNumber] == nil {
+		return nil
+	}
+	// Calculate the offset of the page for the file
+	offset := int64(pageNumber * p.numPages)
+	_, err := p.file.WriteAt(p.pages[pageNumber], offset)
+	return err
 }

@@ -11,6 +11,7 @@ const (
 )
 
 // InitPage sets up a new page of 4KB
+// It does not create/fetch a new page from disk. That is done in the pager.
 func InitPage(page []byte) {
 	// Number of cells
 	binary.LittleEndian.PutUint16(page[0:2], 0)
