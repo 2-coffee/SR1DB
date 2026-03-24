@@ -22,7 +22,7 @@ type Pager struct {
 func PagerOpen(filename string) (*Pager, error) {
 	// Open the file. If it doesn't exist, create it.
 	// 0600 means only the current user can read/write to the file
-	file, err := os.OpenFile(filename, 0600, os.FileMode(os.O_RDWR))
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open file: %v", err)
 	}
